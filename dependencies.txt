@@ -1,0 +1,5 @@
+bleak==0.14.3
+pyobjc-core==8.5
+pyobjc-framework-Cocoa==8.5
+pyobjc-framework-CoreBluetooth==8.5
+pyobjc-framework-libdispatch==8.5
