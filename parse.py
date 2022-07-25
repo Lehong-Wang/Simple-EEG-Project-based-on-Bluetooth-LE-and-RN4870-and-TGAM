@@ -9,7 +9,7 @@ import csv
 import os
 
 SYNC = 0xAA
-
+FILE = "parse.csv"
 
 def parse_packet(byte_list):
   """
@@ -244,9 +244,12 @@ def parse_data(byte_list):
       print_error_package(byte_list)
 
 
-  with open("parse.csv", "a") as f:
+  with open(FILE, "a") as f:
     field_list = ["Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
     csv_writer = csv.DictWriter(f, fieldnames=field_list)
+    if os.stat(FILE).st_size == 0:
+      csv_writer.writeheader()
+
     csv_writer.writerow(data_dict)
 
 
@@ -315,8 +318,8 @@ def parse_whole_list(full_list):
 
 
 if __name__ == '__main__':
-  if os.path.exists("parse.csv"):
-    os.remove("parse.csv")
+  if os.path.exists(FILE):
+    os.remove(FILE)
 
   data = read_from_file("capture2.txt")
   parse_whole_list(data)

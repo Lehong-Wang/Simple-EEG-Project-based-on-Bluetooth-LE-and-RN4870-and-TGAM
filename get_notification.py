@@ -9,7 +9,7 @@ import platform
 import os
 
 from bleak import BleakClient
-from parse import SYNC, parse_packet
+from parse import SYNC, FILE, parse_packet
 
 CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 ADDRESS = (
@@ -67,8 +67,8 @@ def print_as_hex(data_to_print):
 
 
 if __name__ == "__main__":
-  if os.path.exists("parse.csv"):
-    os.remove("parse.csv")
+  if os.path.exists(FILE):
+    os.remove(FILE)
 
   asyncio.run(
     main(
