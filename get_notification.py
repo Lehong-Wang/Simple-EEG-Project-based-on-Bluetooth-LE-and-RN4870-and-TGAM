@@ -11,11 +11,11 @@ import os
 from bleak import BleakClient
 from parse import SYNC, parse_packet
 
-CHARACTERISTIC_UUID = "bf3fbd80-063f-11e5-9e69-0002a5d5c501"
+CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 ADDRESS = (
   "24:71:89:cc:09:05"
   if platform.system() != "Darwin"
-  else "6E3B11C9-B578-2579-D03C-783760E9FD5A"
+  else "A820502D-7BCE-73F6-63E8-0E8B4E2D0583"
 )
 
 
@@ -25,7 +25,7 @@ async def main(address, char_uuid):
     print(f"Connected: {client.is_connected}")
 
     await client.start_notify(char_uuid, notification_handler)
-    await asyncio.sleep(3.0)
+    await asyncio.sleep(5.0)
     await client.stop_notify(char_uuid)
 
 
@@ -41,12 +41,14 @@ current_list = []
 
 def process_data(data_list):
   """Process data from notification"""
+  # print(f"Processing {data_list}")
   while data_list:
     current_byte = data_list.pop(0)
     if current_byte == SYNC:
       current_byte = data_list.pop(0)
       if current_byte == SYNC:
         if current_list:
+          # print(f"Parsing {current_list}")
           parse_packet(current_list)
         current_list.clear()
       current_list.append(SYNC)
