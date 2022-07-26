@@ -7,11 +7,13 @@ http://developer.neurosky.com/docs/doku.php?id=thinkgear_communications_protocol
 
 import csv
 import os
+import time
 
 SYNC = 0xAA
-FILE = "parse.csv"
+# FILE = "parse.csv"
+FILE = "parse_1.csv"
 
-def parse_packet(byte_list):
+def parse_packet(byte_list, current_time):
   """
   Parse the original packet
   Hand over to parse_data if packet is valid
@@ -19,45 +21,56 @@ def parse_packet(byte_list):
 
   packet = byte_list[:]
 
-  current_byte = packet.pop(0)
-  if current_byte != SYNC:
-    print("Error: First byte not SYNC")
-    print_error_package(byte_list)
+  try:
+    current_byte = packet.pop(0)
+    if current_byte != SYNC:
+      print("Error: First byte not SYNC")
+      print_error_package(packet[:10])
+      del byte_list[0]
+      return
+
+    current_byte = packet.pop(0)
+    if current_byte != SYNC:
+      print("Error: Second byte not SYNC")
+      print_error_package(packet[:10])
+      return
+
+    current_byte = packet.pop(0)
+    if current_byte >= SYNC:
+      print("Error: PLength byte too large")
+      print_error_package(packet[:10])
+      return
+    p_length = current_byte
+    # print(f"p_length: {p_length}")
+
+    data_packet = packet[:p_length]
+    packet = packet[p_length:]
+
+    original_sum = 0
+    for byte in data_packet:
+      original_sum += byte
+    chk_sum = original_sum & 0xFF
+    chk_sum = ~chk_sum & 0xFF
+
+    check_sum = packet.pop(0)
+
+  except IndexError:
+    print(f"Error: Index out of bound, p_length = {p_length}")
+    print_error_package(packet[:p_length+4])
     return
-
-  current_byte = packet.pop(0)
-  if current_byte != SYNC:
-    print("Error: Second byte not SYNC")
-    print_error_package(byte_list)
-    return
-
-  current_byte = packet.pop(0)
-  if current_byte >= SYNC:
-    print("Error: PLength byte too large")
-    print_error_package(byte_list)
-    return
-  p_length = current_byte
-  # print(f"p_length: {p_length}")
-
-  data_packet = packet[:p_length]
-
-  original_sum = 0
-  for byte in data_packet:
-    original_sum += byte
-  chk_sum = original_sum & 0xFF
-  chk_sum = ~chk_sum & 0xFF
-
-  check_sum = packet[p_length]
 
   if check_sum == chk_sum:
     # print("CheckSum is correct, preseed to parse data packet")
-    return parse_data(data_packet)
+    packet_length = len(byte_list) - len(packet)
+    del byte_list[:packet_length]
+    parse_data(data_packet, current_time)
+    return True
   else:
     print("CheckSum is wrong")
     print(f"Original Sum is {hex(original_sum)}")
     print(f"chk_sum is {hex(chk_sum)}")
     print(f"CheckSum byte is {hex(check_sum)}")
-    print_error_package(byte_list)
+    print_error_package(packet[:10])
     return
 
 
@@ -77,13 +90,23 @@ ASIC_EEG_POWER = 0x83
 RRINTERVAL = 0x86
 
 
+index = -1
 
-def parse_data(byte_list):
+def parse_data(byte_list, current_time):
   """Parse data packet"""
+  global index
+  index += 1
   data_packet = byte_list[:]
   data_dict = {}
+  field_list = ["Index", "Time", "Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
+  for field_name in field_list:
+    data_dict[field_name] = "null"
+  
+  data_dict["Time"] = current_time
+  data_dict["Index"] = index
 
   while data_packet:
+
     current_byte = data_packet.pop(0)
 
     excode_level = 0
@@ -245,7 +268,6 @@ def parse_data(byte_list):
 
 
   with open(FILE, "a") as f:
-    field_list = ["Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
     csv_writer = csv.DictWriter(f, fieldnames=field_list)
     if os.stat(FILE).st_size == 0:
       csv_writer.writeheader()
@@ -280,37 +302,33 @@ def read_from_file(filename):
       if not word.isspace():
         num = int(word, 16)
         hex_list.append(num)
-        # print("int ",num)
-        # print(hex(num))
-  # print(hex_list)
+
   return hex_list
 
 
-def parse_whole_list(full_list):
-  """devide up an int list into packages with SYNC"""
-  data_list = full_list[:]
-  curret_list = []
-  parsed_list = []
-  while data_list:
-    current_byte = data_list.pop(0)
-    if current_byte == SYNC:
-      current_byte = data_list.pop(0)
+# def parse_whole_list(full_list):
+#   """devide up an int list into packages with SYNC"""
+#   data_list = full_list[:]
+#   curret_list = []
+#   parsed_list = []
+#   while data_list:
+#     current_byte = data_list.pop(0)
+#     if current_byte == SYNC:
+#       current_byte = data_list.pop(0)
 
-      if current_byte == SYNC:
-        if curret_list:
-          parsed_list.append(curret_list)
-        curret_list = []
-      curret_list.append(SYNC)
-    curret_list.append(current_byte)
+#       if current_byte == SYNC:
+#         if curret_list:
+#           parsed_list.append(curret_list)
+#         curret_list = []
+#       curret_list.append(SYNC)
+#     curret_list.append(current_byte)
 
-  parsed_list.append(curret_list)
-  print(parsed_list)
+#   parsed_list.append(curret_list)
+#   print(parsed_list)
 
-  for l in parsed_list:
-    # print(l)
-    parse_packet(l)
-
-
+#   for l in parsed_list:
+#     # print(l)
+#     parse_packet(l)
 
 
 
@@ -321,8 +339,13 @@ if __name__ == '__main__':
   if os.path.exists(FILE):
     os.remove(FILE)
 
-  data = read_from_file("capture2.txt")
-  parse_whole_list(data)
+
+  data = read_from_file("capture with new wire 57600.txt")
+  start_time = time.time()
+
+  while len(data) >= 8:
+    delta_time = "{:.5f}".format(time.time() - start_time)
+    parse_packet(data, delta_time)
 
   # sample_packet = [0xAA, 0xAA, 0x08, 0x02, 0x20, 0x01, 0x7E, 0x04, 0x12, 0x05, 0x60, 0xE3]
   # parse_packet(sample_packet)

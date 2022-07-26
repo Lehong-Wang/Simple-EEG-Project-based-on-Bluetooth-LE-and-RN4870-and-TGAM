@@ -34,25 +34,30 @@ def notification_handler(sender, data):
   """Function called when got a notification"""
   int_list = list(data)
   print_as_hex(int_list)
-  process_data(int_list)
+  current_list.extend(int_list)
+  process_data()
 
 
 current_list = []
 
-def process_data(data_list):
+def process_data():
   """Process data from notification"""
+  while parse_packet(current_list):
+    print(f"Parsing {current_list}")
+
   # print(f"Processing {data_list}")
-  while data_list:
-    current_byte = data_list.pop(0)
-    if current_byte == SYNC:
-      current_byte = data_list.pop(0)
-      if current_byte == SYNC:
-        if current_list:
-          # print(f"Parsing {current_list}")
-          parse_packet(current_list)
-        current_list.clear()
-      current_list.append(SYNC)
-    current_list.append(current_byte)
+
+  # while data_list:
+  #   current_byte = data_list.pop(0)
+  #   if current_byte == SYNC:
+  #     current_byte = data_list.pop(0)
+  #     if current_byte == SYNC:
+  #       if current_list:
+  #         # print(f"Parsing {current_list}")
+  #         parse_packet(current_list)
+  #       current_list.clear()
+  #     current_list.append(SYNC)
+  #   current_list.append(current_byte)
 
 
 
