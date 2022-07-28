@@ -7,7 +7,7 @@ from bleak import BleakScanner, BleakClient
 
 
 async def scan_ble():
-  devices = await BleakScanner.discover(timeout=5)
+  devices = await BleakScanner.discover(timeout=8)
   for d in devices:
     print(d)
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 ADDRESS = (
   "E6:F8:E8:8D:D7:68"
   if platform.system() != "Darwin"
-  else "A820502D-7BCE-73F6-63E8-0E8B4E2D0583"
+  else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
 )
 
 async def scan_characteristic(address):
@@ -63,7 +63,6 @@ async def timed_scan_characteristic():
 
 if __name__ == "__main__":
   # asyncio.run(timed_scan_ble())
-  # asyncio.run(scan_ble())
 
   logging.basicConfig(level=logging.INFO)
   asyncio.run(timed_scan_characteristic())

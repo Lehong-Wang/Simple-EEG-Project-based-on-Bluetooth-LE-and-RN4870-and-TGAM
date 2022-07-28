@@ -7,15 +7,16 @@ import sys
 import asyncio
 import platform
 import os
+import time
 
 from bleak import BleakClient
 from parse import SYNC, FILE, parse_packet
 
-CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
+CHARACTERISTIC_UUID = "49535343-1e4d-4bd9-ba61-23c647249616"
 ADDRESS = (
   "24:71:89:cc:09:05"
   if platform.system() != "Darwin"
-  else "A820502D-7BCE-73F6-63E8-0E8B4E2D0583"
+  else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
 )
 
 
@@ -25,7 +26,7 @@ async def main(address, char_uuid):
     print(f"Connected: {client.is_connected}")
 
     await client.start_notify(char_uuid, notification_handler)
-    await asyncio.sleep(5.0)
+    await asyncio.sleep(30.0)
     await client.stop_notify(char_uuid)
 
 
@@ -42,7 +43,11 @@ current_list = []
 
 def process_data():
   """Process data from notification"""
-  while parse_packet(current_list):
+  delta_time = "{:.5f}".format(time.time() - start_time)
+
+  while parse_packet(current_list, delta_time):
+    delta_time = "{:.5f}".format(time.time() - start_time)
+
     print(f"Parsing {current_list}")
 
   # print(f"Processing {data_list}")
@@ -68,12 +73,17 @@ def print_as_hex(data_to_print):
 
 
 
+# def notification_handler(sender, data):
+#   print(list(data))
+
 
 
 
 if __name__ == "__main__":
   if os.path.exists(FILE):
     os.remove(FILE)
+  start_time = time.time()
+
 
   asyncio.run(
     main(
@@ -81,5 +91,16 @@ if __name__ == "__main__":
       sys.argv[2] if len(sys.argv) > 2 else CHARACTERISTIC_UUID,
     )
   )
+
+  # if __name__ == '__main__':
+  # if os.path.exists(FILE):
+  #   os.remove(FILE)
+
+
+  data = read_from_file("capture with new wire 57600.txt")
+
+  while len(data) >= 8:
+    delta_time = "{:.5f}".format(time.time() - start_time)
+    parse_packet(data, delta_time)
 
 
