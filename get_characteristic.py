@@ -62,8 +62,8 @@ async def timed_scan_characteristic():
 
 
 if __name__ == "__main__":
-  # asyncio.run(timed_scan_ble())
+  asyncio.run(timed_scan_ble())
 
   logging.basicConfig(level=logging.INFO)
-  asyncio.run(timed_scan_characteristic())
+  # asyncio.run(timed_scan_characteristic())
 

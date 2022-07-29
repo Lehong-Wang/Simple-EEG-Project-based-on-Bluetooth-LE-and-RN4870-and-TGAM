@@ -15,13 +15,15 @@ FILE = "parse_1.csv"
 
 def parse_packet(byte_list, current_time):
   """
-  Parse the original packet
+  Parse the original packet once
   Hand over to parse_data if packet is valid
   """
 
   packet = byte_list[:]
+  p_length = 0
 
   try:
+    # if first byte not SYNC, delete it from byte_list
     current_byte = packet.pop(0)
     if current_byte != SYNC:
       print("Error: First byte not SYNC")
@@ -29,12 +31,14 @@ def parse_packet(byte_list, current_time):
       del byte_list[0]
       return
 
+    # second SYNC
     current_byte = packet.pop(0)
     if current_byte != SYNC:
       print("Error: Second byte not SYNC")
       print_error_package(packet[:10])
       return
 
+    # packet length
     current_byte = packet.pop(0)
     if current_byte >= SYNC:
       print("Error: PLength byte too large")
@@ -46,6 +50,7 @@ def parse_packet(byte_list, current_time):
     data_packet = packet[:p_length]
     packet = packet[p_length:]
 
+    # calculate checksum
     original_sum = 0
     for byte in data_packet:
       original_sum += byte
@@ -59,6 +64,7 @@ def parse_packet(byte_list, current_time):
     print_error_package(packet[:p_length+4])
     return
 
+  # if checksum alright, parse data_packet
   if check_sum == chk_sum:
     # print("CheckSum is correct, preseed to parse data packet")
     packet_length = len(byte_list) - len(packet)
@@ -94,6 +100,11 @@ index = -1
 
 def parse_data(byte_list, current_time):
   """Parse data packet"""
+
+  # if not byte_list:
+  #   return False
+
+  # fill default value in all fields
   global index
   index += 1
   data_packet = byte_list[:]
@@ -101,7 +112,7 @@ def parse_data(byte_list, current_time):
   field_list = ["Index", "Time", "Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
   for field_name in field_list:
     data_dict[field_name] = "null"
-  
+
   data_dict["Time"] = current_time
   data_dict["Index"] = index
 
@@ -279,12 +290,18 @@ def parse_data(byte_list, current_time):
 
 def print_error_package(packet):
   """Helper for printing out package that caused error"""
+
   print("Error packet: [", end = "")
-  end_byte = packet.pop()
-  for byte in packet:
-    print(hex(byte), end = ", ")
-  print(hex(end_byte), end = "")
-  print("]")
+  try:
+    end_byte = packet.pop()
+
+    for byte in packet:
+      print(hex(byte), end = ", ")
+    print(hex(end_byte), end = "")
+    print("]")
+
+  except IndexError:
+    print("Error packet: []")
 
 
 

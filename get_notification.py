@@ -97,10 +97,10 @@ if __name__ == "__main__":
   #   os.remove(FILE)
 
 
-  data = read_from_file("capture with new wire 57600.txt")
+  # data = read_from_file("capture with new wire 57600.txt")
 
-  while len(data) >= 8:
-    delta_time = "{:.5f}".format(time.time() - start_time)
-    parse_packet(data, delta_time)
+  # while len(data) >= 8:
+  #   delta_time = "{:.5f}".format(time.time() - start_time)
+  #   parse_packet(data, delta_time)
 
 
