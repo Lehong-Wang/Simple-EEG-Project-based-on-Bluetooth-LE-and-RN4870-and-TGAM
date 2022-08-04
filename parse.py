@@ -7,13 +7,16 @@ http://developer.neurosky.com/docs/doku.php?id=thinkgear_communications_protocol
 
 import csv
 import os
+import shutil
 import time
+import matplotlib.pyplot as plt
+
 
 SYNC = 0xAA
 # FILE = "parse.csv"
-FILE = "parse_1.csv"
+# FILE = "parse_1.csv"
 
-def parse_packet(byte_list, current_time):
+def parse_packet(byte_list, current_time, generate_graph=False):
   """
   Parse the original packet once
   Hand over to parse_data if packet is valid
@@ -29,21 +32,22 @@ def parse_packet(byte_list, current_time):
       print("Error: First byte not SYNC")
       print_error_package(packet[:10])
       del byte_list[0]
-      return
+      # byte_list.clear()
+      return False
 
     # second SYNC
     current_byte = packet.pop(0)
     if current_byte != SYNC:
       print("Error: Second byte not SYNC")
       print_error_package(packet[:10])
-      return
+      return False
 
     # packet length
     current_byte = packet.pop(0)
     if current_byte >= SYNC:
       print("Error: PLength byte too large")
       print_error_package(packet[:10])
-      return
+      return False
     p_length = current_byte
     # print(f"p_length: {p_length}")
 
@@ -60,16 +64,19 @@ def parse_packet(byte_list, current_time):
     check_sum = packet.pop(0)
 
   except IndexError:
+    if not p_length:
+      print("Empty packet")
+      return False
     print(f"Error: Index out of bound, p_length = {p_length}")
     print_error_package(packet[:p_length+4])
-    return
+    return False
 
   # if checksum alright, parse data_packet
   if check_sum == chk_sum:
     # print("CheckSum is correct, preseed to parse data packet")
     packet_length = len(byte_list) - len(packet)
     del byte_list[:packet_length]
-    parse_data(data_packet, current_time)
+    parse_data(data_packet, current_time, generate_graph)
     return True
   else:
     print("CheckSum is wrong")
@@ -77,7 +84,7 @@ def parse_packet(byte_list, current_time):
     print(f"chk_sum is {hex(chk_sum)}")
     print(f"CheckSum byte is {hex(check_sum)}")
     print_error_package(packet[:10])
-    return
+    return False
 
 
 
@@ -96,9 +103,16 @@ ASIC_EEG_POWER = 0x83
 RRINTERVAL = 0x86
 
 
-index = -1
+index = 0
 
-def parse_data(byte_list, current_time):
+field_list = ["Index", "Time", "Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
+
+graph_data_dict = {}
+for field_name in field_list:
+  graph_data_dict[field_name] = []
+
+
+def parse_data(byte_list, current_time, generate_graph=False):
   """Parse data packet"""
 
   # if not byte_list:
@@ -109,7 +123,6 @@ def parse_data(byte_list, current_time):
   index += 1
   data_packet = byte_list[:]
   data_dict = {}
-  field_list = ["Index", "Time", "Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
   for field_name in field_list:
     data_dict[field_name] = "null"
 
@@ -277,15 +290,24 @@ def parse_data(byte_list, current_time):
       print(f"ERROR: Unexpected code detected: {code_byte}")
       print_error_package(byte_list)
 
+  write_to_csv(data_dict)
+  # with open(FILE, "a") as f:
+  #   csv_writer = csv.DictWriter(f, fieldnames=field_list)
+  #   if os.stat(FILE).st_size == 0:
+  #     csv_writer.writeheader()
 
-  with open(FILE, "a") as f:
-    csv_writer = csv.DictWriter(f, fieldnames=field_list)
-    if os.stat(FILE).st_size == 0:
-      csv_writer.writeheader()
+  #   csv_writer.writerow(data_dict)
 
-    csv_writer.writerow(data_dict)
+  if generate_graph:
+    # for value in data_dict:
+    #   if value == "null":
+    #     value = 0
 
-
+    for field,data_list in graph_data_dict.items():
+      new_data = data_dict[field]
+      if new_data == "null":
+        new_data = None
+      data_list.append(new_data)
 
 
 def print_error_package(packet):
@@ -303,8 +325,27 @@ def print_error_package(packet):
   except IndexError:
     print("Error packet: []")
 
+directory_name = "parse"
+num_of_file = 0
+max_row_per_file = 5000
 
+def write_to_csv(data_dict):
+  data_row_num = data_dict["Index"]
 
+  global num_of_file
+  # filename = f"parse_{num_of_file}.csv"
+  filename = os.path.join(directory_name, f"parse_{num_of_file}.csv")
+  # if not os.path.exists(filename):
+  #   os.remove(FILE)
+  with open(filename, "a+") as f:
+    csv_writer = csv.DictWriter(f, fieldnames=field_list)
+    if os.stat(filename).st_size == 0:
+      csv_writer.writeheader()
+
+    csv_writer.writerow(data_dict)
+
+  if data_row_num % max_row_per_file == 0:
+    num_of_file += 1
 
 
 def read_from_file(filename):
@@ -323,46 +364,64 @@ def read_from_file(filename):
   return hex_list
 
 
-# def parse_whole_list(full_list):
-#   """devide up an int list into packages with SYNC"""
-#   data_list = full_list[:]
-#   curret_list = []
-#   parsed_list = []
-#   while data_list:
-#     current_byte = data_list.pop(0)
-#     if current_byte == SYNC:
-#       current_byte = data_list.pop(0)
 
-#       if current_byte == SYNC:
-#         if curret_list:
-#           parsed_list.append(curret_list)
-#         curret_list = []
-#       curret_list.append(SYNC)
-#     curret_list.append(current_byte)
 
-#   parsed_list.append(curret_list)
-#   print(parsed_list)
 
-#   for l in parsed_list:
-#     # print(l)
-#     parse_packet(l)
+def generate_graph(field_x = "Time", field_y = "Raw_Wave"):
+  x_list = graph_data_dict[field_x]
+  y_list = graph_data_dict[field_y]
 
+  # Create Figure and Axes instances
+  fig,ax = plt.subplots(1)
+
+  # Make your plot, set your axes labels
+  ax.plot(x_list, y_list)
+  ax.set_xlabel(field_x)
+  ax.set_ylabel(field_y)
+
+  # Turn off tick labels
+  # ax.set_xticklabels([])
+  # ax.set_yticklabels([])
+  # ax.set_xticks([])
+  # ax.set_yticks([])
+  plt.savefig('foo.png')
+
+  plt.show()
+
+
+
+  # plt.plot(x_list, y_list)
+  # plt.show()
+
+  # pass
 
 
 
 
 
 if __name__ == '__main__':
-  if os.path.exists(FILE):
-    os.remove(FILE)
+  # if os.path.exists(FILE):
+  #   os.remove(FILE)
 
 
-  data = read_from_file("capture with new wire 57600.txt")
+  # Get directory name
+  ## Try to remove tree; if failed show an error using try...except on screen
+  try:
+    shutil.rmtree(directory_name)
+  except OSError as e:
+    print ("Error: %s - %s." % (e.filename, e.strerror))
+  os.makedirs(directory_name)
+
+  data = read_from_file("example_data/capture3.txt")
   start_time = time.time()
 
   while len(data) >= 8:
     delta_time = "{:.5f}".format(time.time() - start_time)
-    parse_packet(data, delta_time)
+    parse_packet(data, delta_time, generate_graph = True)
+
+  # print(graph_data_dict["Raw_Wave"])
+
+  # generate_graph()
 
   # sample_packet = [0xAA, 0xAA, 0x08, 0x02, 0x20, 0x01, 0x7E, 0x04, 0x12, 0x05, 0x60, 0xE3]
   # parse_packet(sample_packet)

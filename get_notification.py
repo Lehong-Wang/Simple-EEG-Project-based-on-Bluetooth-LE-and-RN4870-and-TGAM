@@ -8,9 +8,11 @@ import asyncio
 import platform
 import os
 import time
+import shutil
+
 
 from bleak import BleakClient
-from parse import SYNC, FILE, parse_packet
+from parse import SYNC, parse_packet, generate_graph
 
 CHARACTERISTIC_UUID = "49535343-1e4d-4bd9-ba61-23c647249616"
 ADDRESS = (
@@ -26,7 +28,7 @@ async def main(address, char_uuid):
     print(f"Connected: {client.is_connected}")
 
     await client.start_notify(char_uuid, notification_handler)
-    await asyncio.sleep(30.0)
+    await asyncio.sleep(180.0)
     await client.stop_notify(char_uuid)
 
 
@@ -44,11 +46,12 @@ current_list = []
 def process_data():
   """Process data from notification"""
   delta_time = "{:.5f}".format(time.time() - start_time)
-
+  # while current_list:
   while parse_packet(current_list, delta_time):
     delta_time = "{:.5f}".format(time.time() - start_time)
 
-    print(f"Parsing {current_list}")
+    print(f"Parsing {list(map(hex, current_list))}")
+  # current_list.clear()
 
   # print(f"Processing {data_list}")
 
@@ -80,8 +83,14 @@ def print_as_hex(data_to_print):
 
 
 if __name__ == "__main__":
-  if os.path.exists(FILE):
-    os.remove(FILE)
+  directory_name = "parse"
+
+  try:
+    shutil.rmtree(directory_name)
+  except OSError as e:
+    print ("Error: %s - %s." % (e.filename, e.strerror))
+  os.makedirs(directory_name)
+
   start_time = time.time()
 
 
@@ -91,6 +100,8 @@ if __name__ == "__main__":
       sys.argv[2] if len(sys.argv) > 2 else CHARACTERISTIC_UUID,
     )
   )
+  # generate_graph()
+
 
   # if __name__ == '__main__':
   # if os.path.exists(FILE):
