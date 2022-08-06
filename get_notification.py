@@ -28,7 +28,7 @@ async def main(address, char_uuid):
     print(f"Connected: {client.is_connected}")
 
     await client.start_notify(char_uuid, notification_handler)
-    await asyncio.sleep(180.0)
+    await asyncio.sleep(310.0)
     await client.stop_notify(char_uuid)
 
 

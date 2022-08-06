@@ -327,7 +327,7 @@ def print_error_package(packet):
 
 directory_name = "parse"
 num_of_file = 0
-max_row_per_file = 5000
+max_row_per_file = 5000000
 
 def write_to_csv(data_dict):
   data_row_num = data_dict["Index"]
