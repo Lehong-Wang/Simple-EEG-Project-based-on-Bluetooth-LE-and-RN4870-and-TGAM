@@ -14,12 +14,17 @@ import shutil
 from bleak import BleakClient
 from parse import SYNC, parse_packet, generate_graph
 
+
+# paste the device address and characteristic UUID here
 CHARACTERISTIC_UUID = "49535343-1e4d-4bd9-ba61-23c647249616"
 ADDRESS = (
   "24:71:89:cc:09:05"
+  # if using a Mac, paste address below
   if platform.system() != "Darwin"
   else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
 )
+# the total recording time in seconds
+RECORD_TIME = 300.0
 
 
 async def main(address, char_uuid):
@@ -28,7 +33,7 @@ async def main(address, char_uuid):
     print(f"Connected: {client.is_connected}")
 
     await client.start_notify(char_uuid, notification_handler)
-    await asyncio.sleep(310.0)
+    await asyncio.sleep(RECORD_TIME)
     await client.stop_notify(char_uuid)
 
 
@@ -46,27 +51,11 @@ current_list = []
 def process_data():
   """Process data from notification"""
   delta_time = "{:.5f}".format(time.time() - start_time)
-  # while current_list:
+
   while parse_packet(current_list, delta_time):
     delta_time = "{:.5f}".format(time.time() - start_time)
 
     print(f"Parsing {list(map(hex, current_list))}")
-  # current_list.clear()
-
-  # print(f"Processing {data_list}")
-
-  # while data_list:
-  #   current_byte = data_list.pop(0)
-  #   if current_byte == SYNC:
-  #     current_byte = data_list.pop(0)
-  #     if current_byte == SYNC:
-  #       if current_list:
-  #         # print(f"Parsing {current_list}")
-  #         parse_packet(current_list)
-  #       current_list.clear()
-  #     current_list.append(SYNC)
-  #   current_list.append(current_byte)
-
 
 
 
@@ -76,15 +65,12 @@ def print_as_hex(data_to_print):
 
 
 
-# def notification_handler(sender, data):
-#   print(list(data))
-
-
-
 
 if __name__ == "__main__":
+  # dirctory name to store the parsed data (don't change)
   directory_name = "parse"
-
+  # clean previous parsing results
+  # move/copy the data files outside the parse folder if you want keep the resultes
   try:
     shutil.rmtree(directory_name)
   except OSError as e:
@@ -93,25 +79,18 @@ if __name__ == "__main__":
 
   start_time = time.time()
 
-
   asyncio.run(
     main(
       sys.argv[1] if len(sys.argv) > 1 else ADDRESS,
       sys.argv[2] if len(sys.argv) > 2 else CHARACTERISTIC_UUID,
     )
   )
+
+
+  # # If you want to generate a graph from the recorded data, uncomment the line below
+  # # Don't recomand ploting data recorded for more than 15 seconds, it will take significant time to plot
+
   # generate_graph()
 
-
-  # if __name__ == '__main__':
-  # if os.path.exists(FILE):
-  #   os.remove(FILE)
-
-
-  # data = read_from_file("capture with new wire 57600.txt")
-
-  # while len(data) >= 8:
-  #   delta_time = "{:.5f}".format(time.time() - start_time)
-  #   parse_packet(data, delta_time)
 
 

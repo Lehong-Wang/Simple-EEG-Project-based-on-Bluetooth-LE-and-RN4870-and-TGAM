@@ -13,14 +13,17 @@ import matplotlib.pyplot as plt
 
 
 SYNC = 0xAA
-# FILE = "parse.csv"
-# FILE = "parse_1.csv"
+
 
 def parse_packet(byte_list, current_time, generate_graph=False):
   """
   Parse the original packet once
   Hand over to parse_data if packet is valid
+    This function takes in a byte list and parse out the first data packet
+    if it does not see the data packet starting from first byte,
+      it will delete the first byte and return False
   """
+
 
   packet = byte_list[:]
   p_length = 0
@@ -107,6 +110,7 @@ index = 0
 
 field_list = ["Index", "Time", "Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
 
+# stores data parsed from on packet in a dictionary
 graph_data_dict = {}
 for field_name in field_list:
   graph_data_dict[field_name] = []
@@ -132,7 +136,7 @@ def parse_data(byte_list, current_time, generate_graph=False):
   while data_packet:
 
     current_byte = data_packet.pop(0)
-
+    # count Excode
     excode_level = 0
     while current_byte == EXCODE:
       excode_level += 1
@@ -291,18 +295,8 @@ def parse_data(byte_list, current_time, generate_graph=False):
       print_error_package(byte_list)
 
   write_to_csv(data_dict)
-  # with open(FILE, "a") as f:
-  #   csv_writer = csv.DictWriter(f, fieldnames=field_list)
-  #   if os.stat(FILE).st_size == 0:
-  #     csv_writer.writeheader()
-
-  #   csv_writer.writerow(data_dict)
 
   if generate_graph:
-    # for value in data_dict:
-    #   if value == "null":
-    #     value = 0
-
     for field,data_list in graph_data_dict.items():
       new_data = data_dict[field]
       if new_data == "null":
@@ -325,11 +319,14 @@ def print_error_package(packet):
   except IndexError:
     print("Error packet: []")
 
+# create a dictionary called parse and store the parse result csv files
 directory_name = "parse"
 num_of_file = 0
-max_row_per_file = 5000000
+# sets the maximum number of lines in a single csv file
+max_row_per_file = 50000
 
 def write_to_csv(data_dict):
+  """Write data to csv file, create new file if reach the max_row_per_file"""
   data_row_num = data_dict["Index"]
 
   global num_of_file
@@ -349,7 +346,10 @@ def write_to_csv(data_dict):
 
 
 def read_from_file(filename):
-  """parse a txt file into int list"""
+  """
+  Parse a txt file into int list
+  Function used when parsing data from a pre-recorded txt file
+  """
   hex_list = []
   with open(filename, 'r') as f:
     data = f.read()
@@ -368,6 +368,7 @@ def read_from_file(filename):
 
 
 def generate_graph(field_x = "Time", field_y = "Raw_Wave"):
+  """generate a graph with the data"""
   x_list = graph_data_dict[field_x]
   y_list = graph_data_dict[field_y]
 
@@ -382,7 +383,7 @@ def generate_graph(field_x = "Time", field_y = "Raw_Wave"):
   # Turn off tick labels
   # ax.set_xticklabels([])
   # ax.set_yticklabels([])
-  # ax.set_xticks([])
+  ax.set_xticks([])
   # ax.set_yticks([])
   plt.savefig('foo.png')
 
@@ -390,41 +391,28 @@ def generate_graph(field_x = "Time", field_y = "Raw_Wave"):
 
 
 
-  # plt.plot(x_list, y_list)
-  # plt.show()
-
-  # pass
-
-
-
 
 
 if __name__ == '__main__':
-  # if os.path.exists(FILE):
-  #   os.remove(FILE)
-
 
   # Get directory name
-  ## Try to remove tree; if failed show an error using try...except on screen
+  # Try to remove tree; if failed show an error using try...except on screen
   try:
     shutil.rmtree(directory_name)
   except OSError as e:
     print ("Error: %s - %s." % (e.filename, e.strerror))
   os.makedirs(directory_name)
 
+  # choose to read data from pre-recorded file
+  # enter file directory here
   data = read_from_file("example_data/capture3.txt")
+
+
   start_time = time.time()
 
   while len(data) >= 8:
     delta_time = "{:.5f}".format(time.time() - start_time)
     parse_packet(data, delta_time, generate_graph = True)
-
-  # print(graph_data_dict["Raw_Wave"])
-
-  # generate_graph()
-
-  # sample_packet = [0xAA, 0xAA, 0x08, 0x02, 0x20, 0x01, 0x7E, 0x04, 0x12, 0x05, 0x60, 0xE3]
-  # parse_packet(sample_packet)
 
 
 

@@ -6,21 +6,31 @@ import logging
 from bleak import BleakScanner, BleakClient
 
 
+
+
+# paste the device address you want to scan for characteristics here
+ADDRESS = (
+  "E6:F8:E8:8D:D7:68"
+  # If using Mac, paste address below
+  if platform.system() != "Darwin"
+  else "FE6C13B1-7C71-8384-9224-7CC36EF00F76"
+)
+# Scan time to find devices in seconds
+SCAN_TIME = 8
+
+logger = logging.getLogger(__name__)
+
+
+
 async def scan_ble():
-  devices = await BleakScanner.discover(timeout=8)
+  """Scan for available BLE devices"""
+  devices = await BleakScanner.discover(timeout=SCAN_TIME)
   for d in devices:
     print(d)
 
 
-
-logger = logging.getLogger(__name__)
-ADDRESS = (
-  "E6:F8:E8:8D:D7:68"
-  if platform.system() != "Darwin"
-  else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
-)
-
 async def scan_characteristic(address):
+  """Scan the characteristic UUID for a given device address"""
   async with BleakClient(address) as client:
     logger.info(f"Connected: {client.is_connected}")
 
@@ -49,21 +59,26 @@ async def scan_characteristic(address):
 
 
 async def time_counter():
-  """test docstring"""
-  for i in range(10):
+  """A simple count up timer to make the long scan time feel shorter"""
+  for i in range(2*SCAN_TIME):
     print(i)
     await asyncio.sleep(.5)
 
 async def timed_scan_ble():
+  """Wraper Function"""
   await asyncio.gather(scan_ble(), time_counter())
 
 async def timed_scan_characteristic():
+  """Wraper Function"""
   await asyncio.gather(scan_characteristic(ADDRESS), time_counter())
 
 
 if __name__ == "__main__":
-  asyncio.run(timed_scan_ble())
+
+  # # Uncomment this line to scan for Bluetooth LE devices
+  # asyncio.run(timed_scan_ble())
 
   logging.basicConfig(level=logging.INFO)
+  # # Uncomment this line to get the characteristic of the given device address
   # asyncio.run(timed_scan_characteristic())
 
