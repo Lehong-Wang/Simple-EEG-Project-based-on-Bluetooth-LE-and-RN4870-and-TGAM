@@ -12,8 +12,13 @@ import time
 import matplotlib.pyplot as plt
 
 
-SYNC = 0xAA
+# sets the maximum number of lines in a single csv file
+MAX_ROW_PER_FILE = 50000
 
+
+
+
+SYNC = 0xAA
 
 def parse_packet(byte_list, current_time, generate_graph=False):
   """
@@ -321,19 +326,18 @@ def print_error_package(packet):
 
 # create a dictionary called parse and store the parse result csv files
 directory_name = "parse"
-num_of_file = 0
 # sets the maximum number of lines in a single csv file
 max_row_per_file = 50000
+# don't touch this
+num_of_file = 0
 
 def write_to_csv(data_dict):
   """Write data to csv file, create new file if reach the max_row_per_file"""
   data_row_num = data_dict["Index"]
 
   global num_of_file
-  # filename = f"parse_{num_of_file}.csv"
   filename = os.path.join(directory_name, f"parse_{num_of_file}.csv")
-  # if not os.path.exists(filename):
-  #   os.remove(FILE)
+
   with open(filename, "a+") as f:
     csv_writer = csv.DictWriter(f, fieldnames=field_list)
     if os.stat(filename).st_size == 0:

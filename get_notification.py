@@ -89,8 +89,9 @@ if __name__ == "__main__":
 
   # # If you want to generate a graph from the recorded data, uncomment the line below
   # # Don't recomand ploting data recorded for more than 15 seconds, it will take significant time to plot
-
-  # generate_graph()
+  # # List of choices for X, Y axis value to plot:
+  # # ["Index", "Time", "Raw_Wave", "Attention", "Meditation", "Delta", "Theta", "LowAlpha", "HighAlpha", "LowBeta", "HighBeta", "LowGamma", "MidGamma", "Poor_Signal", "Battery"]
+  # generate_graph(field_x = "Time", field_y = "Raw_Wave")
 
 
 
