@@ -15,9 +15,17 @@ This project uses the TGAM chip from NeuroSky and the RN4870 chip from Microchip
 * [Bleak](https://github.com/hbldh/bleak)
 * [Matplotlib](https://matplotlib.org/)
 
+## Overview of the experiment
+TGAM chip can support three electrodes (EG,GND,REF), with can record EEG data from one point. The chip outputs the data through UART in the form of data packets.[^1]
+![Final Setup](pictures/setup.png)
+
+[^1] this is foot note
+
 ## Setup the experiment
 
-1. Setup RN4870
+### Setup RN4870
+
+
 
 
 
@@ -37,3 +45,40 @@ this is a normal line of text
 Line 1
 > line 2 
 >> line 3
+
+
+Term 1
+: definition 1
+: definition 2
+
+Term 2
+: definition 1
+: definition 2
+
+
+
+<dl>
+    <dt>Term 1</dt>
+    <dd>definition 1</dd>
+    <dd>definition 2</dd>
+    <dt>Term 2</dt>
+    <dd>definition 1</dd>
+    <dd>definition 2</dd>
+</dl>
+
+
+hi hi
+hi
+hi
+
+
+
+&nbsp;
+This is the text that I want indented.  All text on the same line as the preceding colon will be included in this definition.
+: If you include a second definition you'll get a new line; potentially separated by a space. <br />Some inline HTML may be supported within this too, allowing you to create new lines without spaces.
+: Support for other markdown syntax varies; e.g. we can add a bullet list, but each one's wrapped in a separate definition term, so the spacing may be out.
+: - item 1
+: - item 2
+: - item 3
+-time
+-time
