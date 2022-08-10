@@ -24,7 +24,7 @@ ADDRESS = (
   else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
 )
 # the total recording time in seconds
-RECORD_TIME = 190.0
+RECORD_TIME = 95.0
 
 
 async def main(address, char_uuid):

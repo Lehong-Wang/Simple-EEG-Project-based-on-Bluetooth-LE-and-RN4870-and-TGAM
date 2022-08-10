@@ -13,7 +13,7 @@ ADDRESS = (
   "E6:F8:E8:8D:D7:68"
   # If using Mac, paste address below
   if platform.system() != "Darwin"
-  else "FE6C13B1-7C71-8384-9224-7CC36EF00F76"
+  else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
 )
 # Scan time to find devices in seconds
 SCAN_TIME = 8
