@@ -16,21 +16,45 @@ This project uses the TGAM chip from NeuroSky and the RN4870 chip from Microchip
 * [Matplotlib](https://matplotlib.org/)
 
 ## Overview of the experiment
-TGAM chip can support three electrodes (EG,GND,REF), with can record EEG data from one point. The chip outputs the data through UART in the form of data packets.[^1]
+TGAM chip can support three electrodes (EG,GND,REF), with can record EEG data from one point. The chip outputs the data through UART in the form of data packets. 
+The output is transfered to RN4870, which converts it to Bluetooth LE signal. 
+Finally, your computer can run the program in "get_notification.py" file to get the data and parse the packets into the form of csv files in "parse" folder.
 ![Final Setup](pictures/setup.png)
 
-[^1] this is foot note
 
 ## Setup the experiment
 
-### Setup RN4870
+### Setup TGAM
+- For the TGAM chip, wire it to power and make sure it’s running at baud rate of 57600 (factory default is 57600) and producing valid data packet. To check the output, we recommend using a USB to Serial adapter like the one mentioned above to connect to your computer and use a Serial terminal software like Coolterm to read the data. For details, please refer to the [TGAM data sheet](http://wearcam.org/ece516/neurosky_eeg_brainwave_chip_and_board_tgam1.pdf)
+
+- For the RN4870 chip, we need to configure some settings before we can use it. 
+  - First, wire chip like this: Vcc pin to 3.3V power, ground pin to ground, and TX/RX to computer. 
+  - Then, set the Coolterm software baudrate to 115200 (because the factory setting for this chip is 115200). Type “$$$” into the Coolterm terminal, and you should get the response “CMD>” in the terminal. This means that the chip is in command mode, and you can type commands listed in the [user guide](http://ww1.microchip.com/downloads/en/DeviceDoc/50002466B.pdf) to make it do things. 
+  - For the purpose of the experiment, please follow the guide in the "RN4870_setup_instructions.txt". You only need to setup once and the settings is preserved after power off. If you encounter some kind of port error when configuring the chip with 
+  - Here is a screenshot communicating with RN4870 in command mode. Notice here there is "CMD>" at the front of each line to indecate that it is in command mode, and when a command is executed, it returns "AOK". "ERR" means the command is not valid, and "%REBOOT%" means it finished rebooting.
+  ![](pictures/RN4870_command.png)
+
+- Next, wire up the two chips. Connect the power and ground of both chips, and connect the TX pin from TGAM to RX pin of RN4870.
 
 
 
+---
+
+- one
+- twojslkfdjfsdjkfsjdkfjdskfjkdsjfkdsjkfjksdjfkjsdkfjksdjkfjsdkjfksdjfkjsdkfjsdkjfksdjfkjsdkfjksdjfkjdskfjdksjfdsjk
 
 
+- [x] Write the press release
+- [ ] Update the website
+- [ ] Contact the media
 
 
+`
+code
+`
+```
+print("hi)
+```
 
 this is a normal line of text
   * this is the first level of bullet points, made up of <space><space>*<space>

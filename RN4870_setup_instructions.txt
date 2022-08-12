@@ -32,6 +32,6 @@ $$$
 +++
 # Set default UART Transparent service
 SS,40
-# Set to run script at startup
-SR,40
+# Set device name to "RN4870"
+SN,RN4870
 R,1

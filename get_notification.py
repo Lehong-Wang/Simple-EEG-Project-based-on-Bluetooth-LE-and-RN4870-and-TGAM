@@ -13,17 +13,10 @@ import shutil
 
 from bleak import BleakClient
 from parse import SYNC, parse_packet, generate_graph
+from get_characteristic import ADDRESS, CHARACTERISTIC_UUID
 
 
-# paste the device address and characteristic UUID here
-CHARACTERISTIC_UUID = "49535343-1e4d-4bd9-ba61-23c647249616"
-ADDRESS = (
-  "24:71:89:cc:09:05"
-  # if using a Mac, paste address below
-  if platform.system() != "Darwin"
-  else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
-)
-# the total recording time in seconds
+
 RECORD_TIME = 300.0
 
 
