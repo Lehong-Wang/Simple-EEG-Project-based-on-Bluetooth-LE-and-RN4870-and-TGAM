@@ -13,8 +13,13 @@ ADDRESS = (
   "E6:F8:E8:8D:D7:68"
   # If using Mac, paste address below
   if platform.system() != "Darwin"
-  else "A46EB02C-7B16-0696-8ED6-9F5679DE8270"
+  else "29C7009C-8371-A06B-A395-A8C97F8A9FDA"
 )
+
+# paste the characteristic UUID here
+CHARACTERISTIC_UUID = "49535343-1e4d-4bd9-ba61-23c647249616"
+
+
 # Scan time to find devices in seconds
 SCAN_TIME = 8
 
@@ -80,5 +85,5 @@ if __name__ == "__main__":
 
   logging.basicConfig(level=logging.INFO)
   # # Uncomment this line to get the characteristic of the given device address
-  # asyncio.run(timed_scan_characteristic())
+  asyncio.run(timed_scan_characteristic())
 

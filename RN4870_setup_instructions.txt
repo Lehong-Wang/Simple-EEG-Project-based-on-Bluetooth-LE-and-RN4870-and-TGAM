@@ -1,0 +1,37 @@
+
+
+# This file offers instructions on how to setup RN4870 chip for transfering UART data to Bluetooth LE signal at baud rate of 57600
+# This file is also valid RN4870 chip script
+# You only need to setup once, the settings will be preserved after power off
+# However, manually resetting the chip to factory default will remove all the settings
+
+
+# Enter command mode
+$$$
+# Set Echo on to see what you type
++++
+# Reset to factory setting and Reboot
+# This will set baud rate to 115200, change your terminal app baud rate accordingly
+SF,1
+
+$$$
++++
+# Delete all private characters, need reboot right after
+PZ
+# Reboot
+R,1
+
+$$$
++++
+# Set baud rate to 57600, need reboot right after
+# Change your terminal app baud rate accordingly after Reboot
+SB,04
+R,1
+
+$$$
++++
+# Set default UART Transparent service
+SS,40
+# Set device name to "RN4870"
+SN,RN4870
+R,1
