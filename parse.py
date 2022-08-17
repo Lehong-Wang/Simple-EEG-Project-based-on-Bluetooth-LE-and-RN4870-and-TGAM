@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 # sets the maximum number of lines in a single csv file
-MAX_ROW_PER_FILE = 50000
+MAX_ROW_PER_FILE = 1000000
 
 
 
