@@ -82,8 +82,7 @@ RN4870 chip not working:
   - To debug this, connect your RN4870’s RX/TX pin to your computer with the USB-serial adapter, connect power, ground, and P2_0/MODE pin to 3.3V power. Open Coolterm and choose the right serial port, make the baud rate 115200 and connect. Hit “$$$”, and do you get the “CMD>” response on your screen? 
     - If not, try turning the baud rate to 57600 and try again. (Enter “sb,04” to set baud rate, and “r,1” to reboot) If that didn’t work, there is something wrong with your setup or the chip, or someone have messed with the chip and the baud rate is something else. Double check your setup or try other baud rate or use another new chip.
   - If yes, this means that your chip is now in command mode, and you can enter command in the RN4870 user guide and configure things. For the purpose of this experiment, we first enter “+++” and enter, this will turn on ECHO, which enables you to see what you type. Also, when a command is executed, usually it will respond with “AOK” to indicate operation successful. Enter “sf,1” to reset to factory settings. After this, unplug the chip from power to reboot it. When you connect again, it should be returned to factory settings with baud rate at 115200. Now you can perform the operation in the setup part again and it should work.
-- If it still doesn’t work, try to go over the contents in the RN4870_script.txt file again. Below is an example of how communicating to the RN4870 with Coolterm software look like.
-![](pictures/coolterm_example.png)
+- If it still doesn’t work, try to go over the contents in the RN4870_script.txt file again. 
 
 4.	Having error messages in terminal output when recording data:
 - Is the error message saying Bluetooth device or characteristic not found? 
