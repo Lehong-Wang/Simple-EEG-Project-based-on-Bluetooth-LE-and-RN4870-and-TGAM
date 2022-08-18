@@ -82,18 +82,19 @@ RN4870 chip not working:
   - To debug this, connect your RN4870’s RX/TX pin to your computer with the USB-serial adapter, connect power, ground, and P2_0/MODE pin to 3.3V power. Open Coolterm and choose the right serial port, make the baud rate 115200 and connect. Hit “$$$”, and do you get the “CMD>” response on your screen? 
     - If not, try turning the baud rate to 57600 and try again. (Enter “sb,04” to set baud rate, and “r,1” to reboot) If that didn’t work, there is something wrong with your setup or the chip, or someone have messed with the chip and the baud rate is something else. Double check your setup or try other baud rate or use another new chip.
   - If yes, this means that your chip is now in command mode, and you can enter command in the RN4870 user guide and configure things. For the purpose of this experiment, we first enter “+++” and enter, this will turn on ECHO, which enables you to see what you type. Also, when a command is executed, usually it will respond with “AOK” to indicate operation successful. Enter “sf,1” to reset to factory settings. After this, unplug the chip from power to reboot it. When you connect again, it should be returned to factory settings with baud rate at 115200. Now you can perform the operation in the setup part again and it should work.
-- If it still doesn’t work, try to go over the contents in the RN4870_script.txt file again. Below is an example of how communicating to the RN4870 with Coolterm software look like.
-![](pictures/coolterm_example.png)
+- If it still doesn’t work, try to go over the contents in the RN4870_script.txt file again. 
 
 4.	Having error messages in terminal output when recording data:
 - Is the error message saying Bluetooth device or characteristic not found? 
   - If yes, you can first try running the program a few more times. Sometimes it needs more time to connect to device. If this don’t work, double check the device address and characteristic UUID at the top of get_notification.py file. 
   - Is the terminal filled with error message of error packets? If yes, try running the program a few times. Sometimes it didn’t establish a stable connection at the beginning and wrong data jam up the program. Below is example of problematic error message:
+
   ![](pictures/problematic_error_message.png)
 
   - Is there only a few error message every few dozen of none error message? That is normal. There might be two reasons. 
     - One is that the parsing program is reaching the end of a data packet when parsing, and the list is empty, it will print a error, but it's working completely fine and there is no affect on the result. 
     - The second reason might be that the data receiving part of program might be interrupted by other progressed and the data is messed up. This makes you lose about 3-5% of the data. I’m very sorry about not having the time and skills to fix this. Please forgive me for that. Below is example of okey error message:
+
   ![](pictures/okey_error_message.png)
  
 5.	Program not ending / not able to rerun after making a plot:
