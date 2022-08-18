@@ -88,11 +88,13 @@ RN4870 chip not working:
 - Is the error message saying Bluetooth device or characteristic not found? 
   - If yes, you can first try running the program a few more times. Sometimes it needs more time to connect to device. If this don’t work, double check the device address and characteristic UUID at the top of get_notification.py file. 
   - Is the terminal filled with error message of error packets? If yes, try running the program a few times. Sometimes it didn’t establish a stable connection at the beginning and wrong data jam up the program. Below is example of problematic error message:
+
   ![](pictures/problematic_error_message.png)
 
   - Is there only a few error message every few dozen of none error message? That is normal. There might be two reasons. 
     - One is that the parsing program is reaching the end of a data packet when parsing, and the list is empty, it will print a error, but it's working completely fine and there is no affect on the result. 
     - The second reason might be that the data receiving part of program might be interrupted by other progressed and the data is messed up. This makes you lose about 3-5% of the data. I’m very sorry about not having the time and skills to fix this. Please forgive me for that. Below is example of okey error message:
+
   ![](pictures/okey_error_message.png)
  
 5.	Program not ending / not able to rerun after making a plot:
