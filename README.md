@@ -15,6 +15,8 @@ This project uses the TGAM chip from NeuroSky and the RN4870 chip from Microchip
 * [Bleak](https://github.com/hbldh/bleak)
 * [Matplotlib](https://matplotlib.org/)
 
+**_NOTE:_**  Documentations involved in this project is available in the documentation folder.
+
 ---
 ## Overview of the experiment
 TGAM chip can support three electrodes (EG,GND,REF), with can record EEG data from one point. The chip outputs the data through UART in the form of data packets. 
